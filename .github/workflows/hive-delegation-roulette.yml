@@ -3,7 +3,7 @@ name: Hive Delegation Roulette
 on:
   schedule:
     # Run daily at 8:00 AM UTC (adjust timezone as needed)
-    - cron: '0 8 * * *'
+    - cron: '0 1 * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
       env:
         HIVE_USER: ${{ secrets.HIVE_ACCOUNT }}
         HIVE_KEY: ${{ secrets.HIVE_KEY }}
-        DRY_RUN: 'true'  # Set to 'false' for actual sending
+        DRY_RUN: 'false'  # Set to 'false' for actual sending
       run: npm start
       
     - name: Commit updated delegation history
