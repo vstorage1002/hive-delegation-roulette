@@ -1,0 +1,19 @@
+{
+  "name": "hive-delegation-roulette",
+  "version": "1.0.0",
+  "description": "Hive roulette script for @bayanihive delegators",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@hiveio/hive-js": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["hive", "blockchain", "roulette", "delegation"],
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
