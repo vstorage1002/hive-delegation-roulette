@@ -10,10 +10,16 @@
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": ["hive", "blockchain", "roulette", "delegation"],
+  "keywords": [
+    "hive",
+    "blockchain",
+    "roulette",
+    "delegation"
+  ],
   "author": "",
   "repository": {
     "type": "git",
     "url": ""
-  }
+  },
+  "devDependencies": {}
 }
