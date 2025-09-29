@@ -8,9 +8,56 @@ hive.api.setOptions({ url: "https://api.hive.blog" });
 // Target account (the account receiving delegations)
 const ACCOUNT = "bayanihive"; // keep this in quotes
 
+// Reward configuration
+const TIER1_REWARD = 1.000; // HIVE amount for Tier 1 winners (10-94 HP)
+const TIER2_REWARD = 2.000; // HIVE amount for Tier 2 winners (95+ HP)
+const IS_DRY_RUN = process.env.DRY_RUN === 'true' || false; // Set to true for testing
+
 // Function to convert VESTS to HP
 function vestsToHP(vests, totalVestingFundHive, totalVestingShares) {
   return (vests * totalVestingFundHive) / totalVestingShares;
+}
+
+// Function to send reward to winner
+async function sendReward(to, amount, memo) {
+  const fromAccount = process.env.HIVE_USER;
+  const activeKey = process.env.HIVE_KEY;
+  
+  if (!fromAccount || !activeKey) {
+    console.log(`⚠️ Missing HIVE_USER or HIVE_KEY environment variables. Cannot send reward.`);
+    return false;
+  }
+  
+  if (IS_DRY_RUN) {
+    console.log(`🧪 DRY-RUN: Would send ${amount.toFixed(3)} HIVE from @${fromAccount} to @${to}`);
+    console.log(`🧪 Memo: ${memo}`);
+    return true;
+  }
+  
+  try {
+    return new Promise((resolve, reject) => {
+      hive.broadcast.transfer(
+        activeKey,
+        fromAccount,
+        to,
+        `${amount.toFixed(3)} HIVE`,
+        memo,
+        (err, result) => {
+          if (err) {
+            console.error(`❌ Failed to send reward to @${to}:`, err.message);
+            reject(err);
+          } else {
+            console.log(`✅ Sent ${amount.toFixed(3)} HIVE to @${to}`);
+            console.log(`📝 Transaction ID: ${result.id}`);
+            resolve(result);
+          }
+        }
+      );
+    });
+  } catch (error) {
+    console.error(`❌ Error sending reward to @${to}:`, error);
+    return false;
+  }
 }
 
 // Fetch delegators and run roulette
@@ -124,10 +171,34 @@ async function main() {
       console.log(`❌ No eligible delegators in Tier 2 (95+ HP)`);
     }
 
+    // Send rewards to winners
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    if (tier1Winner) {
+      const memo = `@vinzie1:@${tier1Winner}`;
+      console.log(`\n💰 Sending ${TIER1_REWARD} HIVE reward to @steembasicincome (Tier 1 winner: @${tier1Winner})...`);
+      await sendReward("steembasicincome", TIER1_REWARD, memo);
+    }
+
+    if (tier2Winner) {
+      const memo = `@vinzie1:@${tier2Winner}`;
+      console.log(`\n💰 Sending ${TIER2_REWARD} HIVE reward to @steembasicincome (Tier 2 winner: @${tier2Winner})...`);
+      await sendReward("steembasicincome", TIER2_REWARD, memo);
+    }
+
     // Summary
     console.log(`\n🎉 Winners Summary:`);
-    if (tier1Winner) console.log(`  Tier 1 (10-94 HP): @${tier1Winner}`);
-    if (tier2Winner) console.log(`  Tier 2 (95+ HP): @${tier2Winner}`);
+    if (tier1Winner) console.log(`  Tier 1 (10-94 HP): @${tier1Winner} - ${TIER1_REWARD} HIVE sent to @steembasicincome`);
+    if (tier2Winner) console.log(`  Tier 2 (95+ HP): @${tier2Winner} - ${TIER2_REWARD} HIVE sent to @steembasicincome`);
+    
+    if (IS_DRY_RUN) {
+      console.log(`\n🧪 DRY RUN MODE: No actual transactions were sent`);
+    }
     
   } catch (err) {
     console.error("Error processing delegations:", err);

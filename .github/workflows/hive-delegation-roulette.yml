@@ -9,11 +9,15 @@ on:
 jobs:
   run-roulette:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -27,6 +31,10 @@ jobs:
       run: node generate_delegation_history.js
       
     - name: Run delegation roulette
+      env:
+        HIVE_USER: ${{ secrets.HIVE_ACCOUNT }}
+        HIVE_KEY: ${{ secrets.HIVE_KEY }}
+        DRY_RUN: 'true'  # Set to 'false' for actual sending
       run: npm start
       
     - name: Commit updated delegation history
