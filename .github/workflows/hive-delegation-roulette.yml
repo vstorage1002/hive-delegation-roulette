@@ -1,0 +1,38 @@
+name: Hive Delegation Roulette
+
+on:
+  schedule:
+    # Run daily at 8:00 AM UTC (adjust timezone as needed)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  run-roulette:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Update delegation history
+      run: node generate_delegation_history.js
+      
+    - name: Run delegation roulette
+      run: npm start
+      
+    - name: Commit updated delegation history
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add delegation_history.json
+        git diff --staged --quiet || git commit -m "Update delegation history - $(date)"
+        git push
