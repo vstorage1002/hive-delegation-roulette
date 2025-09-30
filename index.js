@@ -10,7 +10,7 @@ const ACCOUNT = "bayanihive"; // keep this in quotes
 
 // Reward configuration
 const TIER1_REWARD = 1.000; // HIVE amount for Tier 1 winners (10-94 HP)
-const TIER2_REWARD = 2.000; // HIVE amount for Tier 2 winners (95+ HP)
+const TIER2_REWARD = 3.000; // HIVE amount for Tier 2 winners (95+ HP)
 const IS_DRY_RUN = process.env.DRY_RUN === false; // Set to true for testing
 
 // Function to convert VESTS to HP
