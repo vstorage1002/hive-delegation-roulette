@@ -6,7 +6,7 @@ const EXCLUDED_DELEGATORS = [
 ];
 
 // Minimum HP required to be eligible
-const MIN_HP = 10;
+const MIN_HP = 1;
 
 // Tier logic based on HP delegation amounts
 function buildDelegatorPool(delegators) {
@@ -23,24 +23,15 @@ function buildDelegatorPool(delegators) {
   console.log("Excluded delegators: " + (EXCLUDED_DELEGATORS.length > 0 ? EXCLUDED_DELEGATORS.join(", ") : "none"));
 
   eligibleDelegators.forEach(d => {
+    // ✅ New System: 1 HP = 1 Ticket (with tier separation)
     let entries = 0;
 
     if (d.hp < 95) {
-      // ✅ Tier 1: Below 95 HP (your original logic kept as is)
-      entries = Math.floor(d.hp / 10);
-
-      if (d.hp >= 15 && d.hp < 20) {
-        entries = 2;
-      } else if (d.hp >= 10 && d.hp < 15) {
-        entries = 1;
-      }
-
+      // ✅ Tier 1: Below 95 HP → 1 HP = 1 ticket
+      entries = Math.floor(d.hp);
     } else {
-      // ✅ Tier 2: 95+ HP
-      // 95–150 HP → 1 entry
-      // 151–250 HP → 2 entries
-      // 251–350 HP → 3 entries, etc.
-      entries = Math.floor((d.hp - 95) / 100) + 1;
+      // ✅ Tier 2: 95+ HP → 1 HP = 1 ticket
+      entries = Math.floor(d.hp);
     }
 
     // Add entries to pool
@@ -48,7 +39,8 @@ function buildDelegatorPool(delegators) {
       pool.push(d.username);
     }
 
-    console.log("@" + d.username + ": " + d.hp + " HP → " + entries + " entries");
+    const tier = d.hp < 95 ? "Tier 1" : "Tier 2";
+    console.log("@" + d.username + ": " + d.hp + " HP → " + entries + " tickets (" + tier + ")");
   });
 
   return pool;
